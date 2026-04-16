@@ -1,0 +1,4 @@
+import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
+export function SourceCard({ source }) {
+    return (_jsxs("div", { className: "rounded-xl border border-slate-200 p-3 dark:border-slate-700", children: [_jsxs("div", { className: "flex items-center justify-between text-xs text-slate-500 dark:text-slate-400", children: [_jsxs("span", { children: ["Rank ", source.rank ?? 'n/a'] }), _jsxs("span", { children: ["Score ", source.score ?? 'n/a'] })] }), _jsx("a", { href: source.url || '#', target: "_blank", rel: "noreferrer", className: "mt-1 line-clamp-1 block text-xs font-medium text-brand-700 underline dark:text-brand-300", children: source.url || 'No source URL' }), _jsx("div", { className: "mt-2 text-xs text-slate-600 dark:text-slate-300", children: source.content || 'No chunk preview available.' }), _jsxs("div", { className: "mt-2 text-[11px] text-slate-500 dark:text-slate-400", children: ["chunk_id: ", source.chunk_id || 'n/a'] })] }));
+}

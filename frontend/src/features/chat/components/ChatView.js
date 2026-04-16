@@ -1,0 +1,6 @@
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import { ChatWindow } from "./ChatWindow";
+import { DebugDrawer } from "./DebugDrawer";
+export function ChatView({ messages, streamBuffer, isStreaming, onSend, onOpenDebug, debug, selectedMessageId, }) {
+    return (_jsxs(_Fragment, { children: [_jsxs("div", { className: "flex min-h-0 flex-1", children: [_jsx("section", { className: "flex min-w-0 flex-1 flex-col", children: _jsx(ChatWindow, { messages: messages, streamBuffer: streamBuffer, isStreaming: isStreaming, onSend: onSend, onOpenDebug: onOpenDebug }) }), _jsx("aside", { className: "hidden w-[360px] shrink-0 border-l border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-900/50 xl:block", children: _jsx(DebugDrawer, { debug: debug, selectedMessageId: selectedMessageId }) })] }), _jsxs("details", { className: "border-t border-slate-200 p-2 xl:hidden dark:border-slate-800", children: [_jsx("summary", { className: "cursor-pointer text-sm font-medium", children: "Debug Drawer" }), _jsx("div", { className: "mt-2 max-h-80 overflow-y-auto", children: _jsx(DebugDrawer, { debug: debug, selectedMessageId: selectedMessageId }) })] })] }));
+}

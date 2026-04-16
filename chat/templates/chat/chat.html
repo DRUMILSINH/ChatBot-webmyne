@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{% static 'chat/style.css' %}" />
+
+  <!-- Markdown Renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Chat Logic -->
+  <script src="{% static 'chat/chat.js' %}"></script>
+</head>
+<body>
+
+  <!--  Chat Container -->
+  <div class="chat-container">
+
+    <!-- Chat Messages -->
+    <div id="chat-box"></div>
+
+    <!--  User Info Box (hidden by default) -->
+    <div id="user-info-box" class="user-info-box">
+      <div class="user-info-header">
+        <h4>Tell us about you</h4>
+        <button id="close-user-form" type="button">✖</button>
+      </div>
+
+      <form id="user-info-form" class="user-info-form">
+        <input type="text" id="user-name" placeholder="Name" required />
+        <input type="email" id="user-email" placeholder="Email" required />
+        <input type="tel" id="user-phone" placeholder="Phone" required />
+        <button type="submit">Save</button>
+        <span id="user-info-status" style="display:none;"> Info saved!</span>
+      </form>
+    </div>
+
+        <!--  Controls Wrapper -->
+    <div class="chat-controls">
+
+      <!--  Open User Info -->
+      <button id="open-user-form" class="open-user-form-btn">
+
+        <img src="{% static 'logo/image/update-info.png' %}" class="update-info-icon" alt="Update Info" />
+        <span class="update-info-text">Update Info!!!</span>
+      </button>
+
+
+
+      <!--  Chat Input -->
+      <form id="chat-form">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="Ask a question..."
+          required
+        />
+        <button type="submit">Send</button>
+      </form>
+<!-- ⌛ Typing Indicator -->
+      <p id="typing-indicator">
+        Bot is typing, avoid refreshing...
+      </p>
+    </div>
+
+
+  </div>
+
+  <!-- Django Variable -->
+  <script>
+    const vectorId = "{{ vector_id }}";
+  </script>
+
+</body>
+</html>
+

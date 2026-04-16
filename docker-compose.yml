@@ -1,0 +1,96 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai-control-center-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chatbot_db}
+      POSTGRES_USER: ${POSTGRES_USER:-openpg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-openpgpwd}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-openpg} -d ${POSTGRES_DB:-chatbot_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: ai-control-center-chroma
+    environment:
+      IS_PERSISTENT: "TRUE"
+      PERSIST_DIRECTORY: /chroma/db
+      ALLOW_RESET: "FALSE"
+    volumes:
+      - ./db:/chroma/db
+    ports:
+      - "8001:8000"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-control-center-backend
+    working_dir: /app
+    command: >
+      sh -c "python manage.py migrate --database=default
+      && python manage.py migrate --database=logs
+      && uvicorn chatbot_ui.asgi:application --host 0.0.0.0 --port 8000 --workers 1"
+    environment:
+      DJANGO_DEBUG: "1"
+      DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost,backend"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:8000,http://localhost:8000"
+      FRONTEND_DEV_ORIGIN: "http://localhost:5173"
+      LOG_AS_JSON: "1"
+      DEFAULT_DB_ENGINE: "django.db.backends.postgresql"
+      DEFAULT_DB_NAME: ${POSTGRES_DB:-chatbot_db}
+      DEFAULT_DB_USER: ${POSTGRES_USER:-openpg}
+      DEFAULT_DB_PASSWORD: ${POSTGRES_PASSWORD:-openpgpwd}
+      DEFAULT_DB_HOST: "postgres"
+      DEFAULT_DB_PORT: "5432"
+      LOGS_DB_ENGINE: "django.db.backends.postgresql"
+      LOGS_DB_NAME: ${POSTGRES_DB:-chatbot_db}
+      LOGS_DB_USER: ${POSTGRES_USER:-openpg}
+      LOGS_DB_PASSWORD: ${POSTGRES_PASSWORD:-openpgpwd}
+      LOGS_DB_HOST: "postgres"
+      LOGS_DB_PORT: "5432"
+      CHROMA_PERSIST_ROOT: "/app/db"
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-mistral}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    volumes:
+      - ./:/app
+      - ./db:/app/db
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      chroma:
+        condition: service_started
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: ai-control-center-frontend
+    working_dir: /app/frontend
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+    environment:
+      VITE_API_PROXY_TARGET: "http://backend:8000"
+      VITE_PORT: "5173"
+    volumes:
+      - ./frontend:/app/frontend
+      - frontend_node_modules:/app/frontend/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  frontend_node_modules:
